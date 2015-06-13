@@ -19,7 +19,13 @@ module.exports = function(robot) {
     user['car'] = car;
     robot.brain.set('car', car);
     robot.brain.save();
-    msg.send("Got it. You, drive a " + car + ".");
+    msg.send("Got it. You drive a " + car + ".");
+  });
+
+  robot.respond(/what is my car/i, function(msg){
+    id = msg.message.user.id
+    user = robot.brain.userForId(id);
+    msg.send("You drive a " + user.car + ".");
   });
 
   robot.respond(/fartface/, function(msg){
