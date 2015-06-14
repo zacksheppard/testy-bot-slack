@@ -12,9 +12,8 @@ module.exports = function(robot){
   function getTransactions(msg){
     var id = msg.message.user.id
     var user = robot.brain.userForId(id);
-
-    return user["cash-transactions"];
     
+    return user["cash-transactions"];
   }
 
   function saveTransaction(user, amount, category, time){
@@ -29,11 +28,7 @@ module.exports = function(robot){
   }
     
   robot.respond(/\$(\d+) (.*)/, function(msg){
-    console.log(
-      "msg.match[0]: " + msg.match[0] + "\n" + 
-      "msg.match[1]: " + msg.match[1] + "\n" + 
-      "msg.match[2]: " + msg.match[2] + "\n"
-    );
+
     var amount = msg.match[1];
     var category = msg.match[2];
 
@@ -46,9 +41,10 @@ module.exports = function(robot){
 
   robot.respond(/get cash/, function(msg){
     var transactions = getTransactions(msg);
+    var transactionsLength = transactions.length;
     var response = "";
-    for (var member in transactions){
-      response += "You spent $" + transactions[member]['amount'] + " on " + transactions[member]['category'] + ".\n";
+    for (var i = 0; i < transactionsLength; i++ ){
+      response += "You spent $" + transactions[i]['amount'] + " on " + transactions[i]['category'] + ".\n";
     }
     msg.send(response);
   });
