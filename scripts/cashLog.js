@@ -9,8 +9,12 @@
 
 module.exports = function(robot){
 
-  function getTransactions(user){
-    // Create a seperate function
+  function getTransactions(msg){
+    var id = msg.message.user.id
+    var user = robot.brain.userForId(id);
+
+    return user["cash-transactions"];
+    
   }
 
   function saveTransaction(user, amount, category, time){
@@ -38,5 +42,14 @@ module.exports = function(robot){
 
     saveTransaction(user, amount, category);
     msg.send("Got it. You spent $"+ user["cash-transactions"].slice(-1)[0]['amount'] + " on " + user["cash-transactions"].slice(-1)[0]['category'] + "." );
+  });
+
+  robot.respond(/get cash/, function(msg){
+    var transactions = getTransactions(msg);
+    var response = "";
+    for (var member in transactions){
+      response += "You spent $" + transactions[member]['amount'] + " on " + transactions[member]['category'] + ".\n";
+    }
+    msg.send(response);
   });
 }
