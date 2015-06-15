@@ -4,7 +4,13 @@
 //
 
 //   
-// Dependencies:
+// Dependencies: 
+//  
+//   
+// Commands:
+//   
+//   hubot $5 cupcakes - Saves a transaction for $5 with category cupcakes
+//   hubot $ all - Shows all transactions in brain
 //   
 
 module.exports = function(robot){
@@ -12,19 +18,22 @@ module.exports = function(robot){
   function getTransactions(msg){
     var id = msg.message.user.id
     var user = robot.brain.userForId(id);
-    
-    return user["cash-transactions"];
+    var transactions = user["cash-transactions"] || [];
+    return transactions;
   }
 
   function saveTransaction(user, amount, category, time){
     var transactions = user["cash-transactions"] || [];
+    var time = Date.now();
     var newTransaction = {
       amount: amount,
-      category: category
+      category: category,
+      time: time
     };
 
     transactions.push(newTransaction);
     robot.brain.save();
+    return transactions;
   }
     
   robot.respond(/\$(\d+) (.*)/, function(msg){
@@ -35,11 +44,11 @@ module.exports = function(robot){
     var id = msg.message.user.id
     var user = robot.brain.userForId(id);
 
-    saveTransaction(user, amount, category);
-    msg.send("Got it. You spent $"+ user["cash-transactions"].slice(-1)[0]['amount'] + " on " + user["cash-transactions"].slice(-1)[0]['category'] + "." );
+    var transactions = saveTransaction(user, amount, category);
+    msg.send("Got it. You spent $"+ transactions.slice(-1)[0]['amount'] + " on " + transactions.slice(-1)[0]['category'] + " at" + transactions.slice(-1)[0]['category'] + "." );
   });
 
-  robot.respond(/get cash/, function(msg){
+  robot.respond(/\$ all/, function(msg){
     var transactions = getTransactions(msg);
     var transactionsLength = transactions.length;
     var response = "";
