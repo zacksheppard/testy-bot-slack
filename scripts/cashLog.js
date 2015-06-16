@@ -24,6 +24,10 @@ module.exports = function(robot){
 
   function saveTransaction(user, amount, category, time){
     var transactions = user["cash-transactions"] || [];
+    console.log("1 saveTransaction");
+    console.log(transactions);
+    console.log("user['cash-transactions']");
+    console.log(user["cash-transactions"]);
     var time = Date.now();
     var newTransaction = {
       amount: amount,
@@ -33,7 +37,7 @@ module.exports = function(robot){
 
     transactions.push(newTransaction);
     robot.brain.save();
-    console.log("from saveTransaction");
+    console.log("2 saveTransaction");
     console.log(transactions);
     return transactions;
   }
