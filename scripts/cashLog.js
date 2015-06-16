@@ -28,7 +28,7 @@ module.exports = function(robot){
     }
     var userTransactions = user["cash-transactions"];
 
-    var time = Date.now();
+    var time = new Date;
     var newTransaction = {
       amount: amount,
       category: category,
