@@ -45,16 +45,19 @@ module.exports = function(robot){
     var user = robot.brain.userForId(id);
 
     var transactions = saveTransaction(user, amount, category);
-    msg.send("Got it. You spent $"+ transactions.slice(-1)[0]['amount'] + " on " + transactions.slice(-1)[0]['category'] + " at" + transactions.slice(-1)[0]['category'] + "." );
+    msg.send("Got it. You spent $"+ transactions.slice(-1)[0]['amount'] + " on " + transactions.slice(-1)[0]['category'] + " at " + transactions.slice(-1)[0]['time'] + "." );
   });
 
   robot.respond(/\$ all/, function(msg){
     var transactions = getTransactions(msg);
     var transactionsLength = transactions.length;
+    console.log(transactions);
+    console.log(transactionsLength);
     var response = "";
     for (var i = 0; i < transactionsLength; i++ ){
       response += "You spent $" + transactions[i]['amount'] + " on " + transactions[i]['category'] + ".\n";
     }
+    console.log(response);
     msg.send(response);
   });
 }
