@@ -33,6 +33,8 @@ module.exports = function(robot){
 
     transactions.push(newTransaction);
     robot.brain.save();
+    console.log("from saveTransaction");
+    console.log(transactions);
     return transactions;
   }
     
