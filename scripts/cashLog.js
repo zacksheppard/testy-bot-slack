@@ -23,15 +23,11 @@ module.exports = function(robot){
   }
 
   function saveTransaction(user, amount, category, time){
-    console.log(user);
     if (user["cash-transactions"] === undefined) {
       user["cash-transactions"] = [];
     }
     var userTransactions = user["cash-transactions"];
-    console.log("1 saveTransaction");
-    console.log(userTransactions);
-    console.log("user['cash-transactions']");
-    console.log(user["cash-transactions"]);
+
     var time = Date.now();
     var newTransaction = {
       amount: amount,
@@ -41,8 +37,6 @@ module.exports = function(robot){
 
     userTransactions.push(newTransaction);
     robot.brain.save();
-    console.log("2 saveTransaction");
-    console.log(userTransactions);
     return userTransactions;
   }
     
@@ -61,13 +55,10 @@ module.exports = function(robot){
   robot.respond(/\$ all/, function(msg){
     var transactions = getTransactions(msg);
     var transactionsLength = transactions.length;
-    console.log(transactions);
-    console.log(transactionsLength);
     var response = "";
     for (var i = 0; i < transactionsLength; i++ ){
-      response += "You spent $" + transactions[i]['amount'] + " on " + transactions[i]['category'] + ".\n";
+      response += "[" + transactions[i]['time'] + "] $" + transactions[i]['amount'] + " on " + transactions[i]['category'] + ".\n";
     }
-    console.log(response);
     msg.send(response);
   });
 }
