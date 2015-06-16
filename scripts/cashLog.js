@@ -23,9 +23,13 @@ module.exports = function(robot){
   }
 
   function saveTransaction(user, amount, category, time){
-    var transactions = user["cash-transactions"] || [];
+    console.log(user);
+    if (user["cash-transactions"] === undefined) {
+      user["cash-transactions"] = [];
+    }
+    var userTransactions = user["cash-transactions"];
     console.log("1 saveTransaction");
-    console.log(transactions);
+    console.log(userTransactions);
     console.log("user['cash-transactions']");
     console.log(user["cash-transactions"]);
     var time = Date.now();
@@ -35,11 +39,11 @@ module.exports = function(robot){
       time: time
     };
 
-    transactions.push(newTransaction);
+    userTransactions.push(newTransaction);
     robot.brain.save();
     console.log("2 saveTransaction");
-    console.log(transactions);
-    return transactions;
+    console.log(userTransactions);
+    return userTransactions;
   }
     
   robot.respond(/\$(\d+) (.*)/, function(msg){
