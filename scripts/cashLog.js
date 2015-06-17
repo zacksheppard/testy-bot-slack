@@ -61,14 +61,5 @@ module.exports = function(robot){
     }
     msg.send(response);
   });
-  
-  robot.respond(/\$ delete all/, function(msg){
-
-    var id = msg.message.user.id
-    var user = robot.brain.userForId(id);
-    user["cash-transactions"] = [];
-    
-    msg.send("Transactions deleted" + user["cash-transactions"]);
-  });
 
 }
