@@ -24,6 +24,6 @@ module.exports = function(robot) {
     var rand_message = its_noon_messages[Math.floor(Math.random() * its_noon_messages.length)];
     robot.messageRoom('general', rand_message);
   }
-  new cronJob('00 00 12 * * 1-2', itsNoonPacific, null, true, tz);
+  new cronJob('00 00 12 * * 1', itsNoonPacific, null, true, tz);
 
 }
