@@ -30,10 +30,8 @@ module.exports = function(robot) {
   robot.router.get('/api/users/findBy/email/:email', function(req, res) {
     var email = req.params.email;
     var user = robot.brain.userForEmail(email);
-    console.log(user);
     var userObj = JSON.stringify(user);
-    console.log(userObj);
-    return res.send(userObj);
+    return res.send('{"id":"'+ user['id'] +'"}');
   });
 
 
