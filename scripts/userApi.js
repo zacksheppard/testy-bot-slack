@@ -12,18 +12,30 @@ var app = express();
 
 module.exports = function(robot) {
   
-  // zack user id is: http://localhost:8080/api/user/U03H5KTB8
-  return robot.router.get('/api/user/:id', function(req, res) {
+  // zack user id is: http://localhost:8080/api/users/U03H5KTB8
+  robot.router.get('/api/users/:id', function(req, res) {
     var id = req.params.id;
-    var data = robot.brain.userForId(id);
-    userObj = JSON.stringify(data);
-    return res.send("OK" + userObj);
+    var user = robot.brain.userForId(id);
+    userObj = JSON.stringify(user);
+    return res.send(userObj);
   });
 
-  return robot.router.get('/hello', function(req, res){
-    return res.send('Hello world');
+  robot.router.put('/api/users/:id', function(req, res) {
+    var id = req.params.id;
+    var user = robot.brain.userForId(id);
+    console.log(req.body);
+    return res.send("I'm not updating anyone yet. But fix this method and I can update " + user.name +  "for you next time.");
   });
 
+  // Uses the `userForEmail` function added to hubot/src/brain.coffee
+  robot.router.get('/api/users/findBy/email/:email', function(req, res) {
+    var email = req.params.email;
+    var user = robot.brain.userForEmail(email);
+    console.log(user);
+    var userObj = JSON.stringify(user);
+    console.log(userObj);
+    return res.send(userObj);
+  });
 
 
 };
