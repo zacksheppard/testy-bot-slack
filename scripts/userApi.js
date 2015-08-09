@@ -12,7 +12,6 @@ var app = express();
 
 module.exports = function(robot) {
   
-  // zack user id is: http://localhost:8080/api/users/U03H5KTB8
   robot.router.get('/api/users/:id', function(req, res) {
     var id = req.params.id;
     var user = robot.brain.userForId(id);
