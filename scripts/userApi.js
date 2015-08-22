@@ -7,9 +7,6 @@
 // Commands:
 //   None
 
-// var express = require('express');
-// var app = express();
-
 module.exports = function(robot) {
   
   robot.router.get('/api/users/:id', function(req, res) {
