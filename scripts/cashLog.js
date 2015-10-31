@@ -1,5 +1,5 @@
 // Description:
-//   Logs my cash spent. Mint captures a lot but not my cash.
+//   Logs cash spent. Mint captures a lot but not my cash.
 //   
 //
 
