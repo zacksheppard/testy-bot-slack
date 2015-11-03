@@ -54,8 +54,17 @@ module.exports = function(robot){
         msg.send(current_forecast(data));
       } else if (data.response.results != null){
         msg.send(list_results(data, location));
+      } else if (data.response.error.type === 'querynotfound'){
+          msg.send(
+            'No cities matched that. If the city name isn\'t working, ' +
+            'try a postal code.');
+      } else if (data.response.error) {
+        msg.send('Weather Underground said to tell you, \n ```' + 
+            'error: \n' +
+            'type: '+ data.response.error.type + '\n' +
+            'description: '+ data.response.error.description + '\n' +
+            '```');
       }
-
     });
 
 
