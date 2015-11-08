@@ -80,7 +80,6 @@ module.exports = function(robot){
       msg.send(
         'Your home weather has been set to ' + user.weather + '.'
         );
-      // robot.brain.set()
 
     });
 
