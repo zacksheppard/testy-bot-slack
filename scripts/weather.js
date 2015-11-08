@@ -12,6 +12,9 @@
 //   hubot weather 11222 - Reports the weather in the 11222 zip code
 //   hubot weather watch 11222 - Watches the weather in the 11222 zip code
 
+var cronJob = require('cron').CronJob;
+var tz = "America/New_York";
+
 module.exports = function(robot){
 
   var format_location = function(location){
@@ -39,7 +42,7 @@ module.exports = function(robot){
     return response;
   };
 
-  robot.respond(/weather (.*)/, function(msg){
+  robot.respond(/weather show (.*)/, function(msg){
     var location = msg.match[1];
     
     var url = 
@@ -47,7 +50,6 @@ module.exports = function(robot){
       process.env.HUBOT_WUNDERGROUND_API_KEY + 
       '/geolookup/conditions/forecast/q/' + 
       format_location(location) + '.json';
-
     return robot.http(url).get()(function(err, res, body) {
       var data = JSON.parse(body);
       if (data.location != null) {
@@ -65,6 +67,29 @@ module.exports = function(robot){
             'description: '+ data.response.error.description + '\n' +
             '```');
       }
+    });
+
+    robot.respond(/weather home (.*)/, function(msg){
+      var location = msg.match[1];
+      var id = msg.message.user.id;
+      var user = robot.brain.userForId(id);
+      // debugger
+
+      user.weather = {'locations': {'home': location }};
+
+      msg.send(
+        'Your home weather has been set to ' + user.weather + '.'
+        );
+      // robot.brain.set()
+
+    });
+
+    robot.respond(/weather watch (.*)/, function(msg){
+      var message_array = msg.match[1].split(" ");
+      var time = message_array[0];
+      var days = message_array[1];
+      
+    
     });
 
 
