@@ -23,6 +23,7 @@ module.exports = function(robot) {
   });
 
   robot.respond(/what is my car/i, function(msg){
+    console.log(msg);
     id = msg.message.user.id
     user = robot.brain.userForId(id);
     msg.send("You drive a " + user.car + ".");

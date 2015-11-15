@@ -19,7 +19,9 @@
     "hubot-scripts": "^2.16.1",
     "hubot-shipit": "^0.2.0",
     "hubot-slack": "^3.3.0",
-    "hubot-youtube": "^1.0.0"
+    "hubot-youtube": "^1.0.0",
+    "moment": "^2.10.6",
+    "moment-timezone": "^0.4.1-2015g"
   },
   "engines": {
     "node": "0.10.x"
