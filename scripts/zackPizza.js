@@ -9,7 +9,7 @@
 
 module.exports = function(robot){
 
-  robot.respond(/pizza yum*!*/, function(msg){
+  robot.respond(/pizza yum+!*/, function(msg){
     
     var today = new Date();
     var todayFormatted = today.getFullYear() + '-' + 
