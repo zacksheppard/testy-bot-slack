@@ -12,8 +12,9 @@ module.exports = function(robot){
   robot.respond(/pizza yum+!*/, function(msg){
     
     var today = new Date();
+    var month = today.getMonth() + 1;
     var todayFormatted = today.getFullYear() + '-' + 
-      today.getMonth() + '-' + today.getDate();
+      month + '-' + today.getDate();
     var url = 
       'https://' + process.env.PIZZA_FIREBASE_URL + '.firebaseio.com/.json';
 
