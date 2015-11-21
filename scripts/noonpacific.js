@@ -2,7 +2,6 @@
 //   Have Hubot remind you that it is Noon in the Pacific time zone 
 //   and noonpacific.com has a new playlist out
 //
-
 //   
 // Dependencies:
 //   cron
@@ -11,7 +10,6 @@ var cronJob = require('cron').CronJob;
 var tz = "America/Los_Angeles";
 
 module.exports = function(robot) {
-  // "use strict";
 
   var its_noon_messages = [
     "It's Noon Pacific!",

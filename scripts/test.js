@@ -16,7 +16,7 @@ module.exports = function(robot) {
     var car = msg.match[1];
     id = msg.message.user.id
     var user = robot.brain.userForId(id);
-    user['car'] = car;
+    user["car"] = car;
     robot.brain.set('car', car);
     robot.brain.save();
     msg.send("Got it. You drive a " + car + ".");
