@@ -32,19 +32,22 @@ module.exports = function(robot){
 
     userTransactions.push(newTransaction);
     robot.brain.save();
-    return userTransactions;
+    // returns the saved transaction object from the brain 
+    return userTransactions.slice(-1)[0];
   }
     
   robot.respond(/\$(\d+) (.*)/, function(msg){
-
     var amount = msg.match[1];
     var category = msg.match[2];
-
     var id = msg.message.user.id
     var user = robot.brain.userForId(id);
 
-    var transactions = saveTransaction(user, amount, category);
-    msg.send("Got it. You spent $"+ transactions.slice(-1)[0]['amount'] + " on " + transactions.slice(-1)[0]['category'] + " at " + transactions.slice(-1)[0]['time'] + "." );
+    var transaction = saveTransaction(user, amount, category);
+    msg.send(
+      "Got it. You spent $"+ transaction.amount + 
+      " on " + transaction.category + 
+      " at " + transaction['time'] + "." 
+    );
   });
 
   robot.respond(/\$ all/, function(msg){
