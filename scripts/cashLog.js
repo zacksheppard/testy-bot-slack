@@ -1,10 +1,6 @@
 // Description:
-//   Logs cash spent. Mint captures a lot but not my cash.
-//   
-//
-
-//   
-// Dependencies: 
+//   A cash transaction logger. Using it to suppliment mint which doesn't 
+//   do a good job of this.
 //  
 //   
 // Commands:
@@ -27,7 +23,6 @@ module.exports = function(robot){
       user["cash-transactions"] = [];
     }
     var userTransactions = user["cash-transactions"];
-
     var time = new Date;
     var newTransaction = {
       amount: amount,
