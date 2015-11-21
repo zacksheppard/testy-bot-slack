@@ -18,7 +18,7 @@ module.exports = function(robot){
     return transactions;
   }
 
-  function saveTransaction(user, amount, category, time){
+  function saveTransaction(user, amount, category){
     if (user["cash-transactions"] === undefined) {
       user["cash-transactions"] = [];
     }
@@ -27,7 +27,7 @@ module.exports = function(robot){
     var newTransaction = {
       amount: amount,
       category: category,
-      time: time
+      timestamp: time
     };
 
     userTransactions.push(newTransaction);
@@ -46,7 +46,7 @@ module.exports = function(robot){
     msg.send(
       "Got it. You spent $"+ transaction.amount + 
       " on " + transaction.category + 
-      " at " + transaction['time'] + "." 
+      " at " + transaction.timestamp + "." 
     );
   });
 
@@ -55,7 +55,9 @@ module.exports = function(robot){
     var transactionsLength = transactions.length;
     var response = "";
     for (var i = 0; i < transactionsLength; i++ ){
-      response += "[" + transactions[i]['time'] + "] $" + transactions[i]['amount'] + " on " + transactions[i]['category'] + ".\n";
+      response += "[" + transactions[i].timestamp + "] $" + 
+      transactions[i].amount + " on " + 
+      transactions[i].category + ".\n";
     }
     msg.send(response);
   });
