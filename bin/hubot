@@ -6,6 +6,6 @@ npm install
 export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
 
 # Original exec command:
-# exec node_modules/.bin/hubot --name "zhubot75-2" "$@"
+# exec node_modules/.bin/hubot --name "testy" "$@"
 # modified to include debug:
-exec coffee --nodejs --debug node_modules/.bin/hubot --name "zhubot75-2" "$@"
+exec coffee --nodejs --debug node_modules/.bin/hubot --name "testy" "$@"
