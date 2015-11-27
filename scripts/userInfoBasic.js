@@ -35,6 +35,7 @@ module.exports = function(robot){
     };
   }; 
 
+  // I need to handle the return better to make sure it's done
   var setTimeZone = function(userId){
     var user = robot.brain.userForId(userId);
     var url = "https://slack.com/api/users.list?token=" + 
@@ -43,7 +44,7 @@ module.exports = function(robot){
     if(!user.profile){
       scaffoldProfile(userId);
     }
-
+    console.log(user.profile.locations.home);
     robot.http(url).get()(function(err, res, body) {
       var data = JSON.parse(body);
       for(var i=0; i < data.members.length; i++){
@@ -53,14 +54,23 @@ module.exports = function(robot){
           user.profile.locations.home.tz_offset = data.members[i].tz_offset;
         }
       }
-      console.log("Timezone set to " +
-        "tz: " + user.profile.locations.home.tz + "\n" +
-        "tz_label: " + user.profile.locations.home.tz_label + "\n" +
-        "tz_offset: " + user.profile.locations.home.tz_offset + "\n"
-      );
+      return user.profile.locations.home.tz_label
     });
-
   };
+
+  robot.respond(/show the user object for @?([\w .\-]+)\?*$/i, function(res) {
+    var name, user, users;
+    name = res.match[1].trim();
+    users = robot.brain.usersForFuzzyName(name);
+    if (users.length === 1) {
+      userObj = JSON.stringify(users[0]);
+      return res.send(name + " looks like this to me: \n ```" + userObj + "```");
+    } else if (users.length === 0) {
+      return res.send("I can't find anyone by that name.");
+    } else if (users.length > 1) {
+      return res.send("You'll need to be more specific. I can't tell all these results you call 'humans' apart.");
+    }
+  });
 
   robot.respond(/profile location add (.*)/i, function(msg){
     // console.log(msg);
@@ -83,12 +93,8 @@ module.exports = function(robot){
   robot.respond(/set timezone/i, function(msg){
     var userId = msg.message.user.id;
     var user = robot.brain.userForId(userId);
-    setTimeZone(userId);
-    msg.send(
-      "tz: " + user.profile.locations.home.tz + "\n" +
-      "tz_label: " + user.profile.locations.home.tz_label + "\n" +
-      "tz_offset: " + user.profile.locations.home.tz_offset + "\n"
-    );
+    var tz_label =  setTimeZone(userId);
+    msg.send('Your timezone has been set.');   
   });
 
 }

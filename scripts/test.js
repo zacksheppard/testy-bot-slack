@@ -33,18 +33,4 @@ module.exports = function(robot) {
     msg.send("You're a fart face!");
   });
 
-  robot.respond(/show the user object for @?([\w .\-]+)\?*$/i, function(res) {
-    var name, user, users;
-    name = res.match[1].trim();
-    users = robot.brain.usersForFuzzyName(name);
-    if (users.length === 1) {
-      userObj = JSON.stringify(users[0]);
-      return res.send(name + " looks like this to me: \n ```" + userObj + "```");
-    } else if (users.length === 0) {
-      return res.send("I can't find anyone by that name.");
-    } else if (users.length > 1) {
-      return res.send("You'll need to be more specific. I can't tell all these results you call 'humans' apart.");
-    }
-  });
-
 }
