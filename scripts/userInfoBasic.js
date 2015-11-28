@@ -16,6 +16,8 @@
 //   hubot profile location add home 11222 - add home location
 //   hubot profile location add <custom name>: 11222 - add custom location
 
+var util = require('./utils.js');
+
 module.exports = function(robot){
 
   var scaffoldProfile = function(userId){
@@ -96,8 +98,8 @@ module.exports = function(robot){
   robot.respond(/set timezone/i, function(msg){
     var userId = msg.message.user.id;
     var user = robot.brain.userForId(userId);
-    var tz_label =  setTimeZone(userId);
-    if(!user.profile.locations.home.tz){
+    var tz_label = setTimeZone(userId);
+    if(!checkNestedProperties(user, 'profile', 'locations', 'home', 'tz')){
       robot.emit('setTimezone', userId, msg.message.room)
     } else {
       msg.send('Your timezone was already set to ' + 
