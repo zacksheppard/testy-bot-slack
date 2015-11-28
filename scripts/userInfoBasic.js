@@ -36,7 +36,7 @@ module.exports = function(robot){
   }; 
 
   // I need to handle the return better to make sure it's done
-  var setTimeZone = function(userId){
+  robot.on('setTimezone', function(userId, room){
     var user = robot.brain.userForId(userId);
     var url = "https://slack.com/api/users.list?token=" + 
     process.env.HUBOT_SLACK_TOKEN;
@@ -44,7 +44,6 @@ module.exports = function(robot){
     if(!user.profile){
       scaffoldProfile(userId);
     }
-    console.log(user.profile.locations.home);
     robot.http(url).get()(function(err, res, body) {
       var data = JSON.parse(body);
       for(var i=0; i < data.members.length; i++){
@@ -54,9 +53,13 @@ module.exports = function(robot){
           user.profile.locations.home.tz_offset = data.members[i].tz_offset;
         }
       }
-      return user.profile.locations.home.tz_label
+      robot.messageRoom(room, 'I set your timezone to ' + user.profile.locations.home.tz_label );
     });
-  };
+
+  });
+  
+  // var setTimeZone = function(userId){
+  // };
 
   robot.respond(/show the user object for @?([\w .\-]+)\?*$/i, function(res) {
     var name, user, users;
@@ -94,7 +97,12 @@ module.exports = function(robot){
     var userId = msg.message.user.id;
     var user = robot.brain.userForId(userId);
     var tz_label =  setTimeZone(userId);
-    msg.send('Your timezone has been set.');   
+    if(!user.profile.locations.home.tz){
+      robot.emit('setTimezone', userId, msg.message.room)
+    } else {
+      msg.send('Your timezone was already set to ' + 
+        user.profile.locations.home.tz_label);   
+    }
   });
 
 }

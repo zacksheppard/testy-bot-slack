@@ -58,17 +58,19 @@ module.exports = function(robot){
   };
 
     robot.respond(/weather watch (.*)/i, function(msg){
-      var parsedMsg = /(.*) (at|@) (\d{1,2}:*\d*{1,2}[ap]m)/.exec(msg.match[1]);
+      var parsedMsg = /(.*) (at|@) (\d{1,2}:*\d{1,2}[ap]m)/.exec(msg.match[1]);
       // matches
       // 11222 at 9pm
       // Brooklyn, ny at 10am
       // 11222 @ 10:00pm
       console.log(parsedMsg);
+      var location = parsedMsg[1];
+      console.log('LOCATION: ' + location);
       // var location = format_location(msg.match[1]);
       // var time = message_array[0];
       // var days = message_array[1];
       
-      msg.send(parsedMsg);
+      msg.send('Logging');
     });
 
   robot.respond(/weather show (.*)/, function(msg){
