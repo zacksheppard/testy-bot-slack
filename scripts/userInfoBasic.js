@@ -37,8 +37,7 @@ module.exports = function(robot){
     };
   }; 
 
-  // I need to handle the return better to make sure it's done
-  robot.on('setTimezone', function(userId, room){
+  var setTimeZone = function(userId, callback){
     var user = robot.brain.userForId(userId);
     var url = "https://slack.com/api/users.list?token=" + 
     process.env.HUBOT_SLACK_TOKEN;
@@ -55,10 +54,10 @@ module.exports = function(robot){
           user.profile.locations.home.tz_offset = data.members[i].tz_offset;
         }
       }
-      robot.messageRoom(room, 'I set your timezone to ' + user.profile.locations.home.tz_label );
+      callback();
     });
 
-  });
+  };
   
   // var setTimeZone = function(userId){
   // };
@@ -98,9 +97,13 @@ module.exports = function(robot){
   robot.respond(/set timezone/i, function(msg){
     var userId = msg.message.user.id;
     var user = robot.brain.userForId(userId);
-    var tz_label = setTimeZone(userId);
-    if(!checkNestedProperties(user, 'profile', 'locations', 'home', 'tz')){
-      robot.emit('setTimezone', userId, msg.message.room)
+    // var tz_label = setTimeZone(userId);
+    if(!util.checkNestedProperties(user, 'profile', 'locations', 'home', 'tz')){
+      setTimeZone(userId, function(){
+        var user = robot.brain.userForId(userId);
+        msg.send('Your timezone has been set to ' + 
+          user.profile.locations.home.tz_label);   
+      });
     } else {
       msg.send('Your timezone was already set to ' + 
         user.profile.locations.home.tz_label);   
