@@ -71,11 +71,8 @@ module.exports = function(robot){
         meridian = parsedMsg[4];
       }
       console.log('LOCATION: ' + JSON.stringify(location));
-      // var location = format_location(msg.match[1]);
-      // var time = message_array[0];
-      // var days = message_array[1];
       
-      msg.send('Logging');
+      msg.send('time: ' + time '.meridian: ' + meridian);
     });
 
   robot.respond(/weather show (.*)/, function(msg){
