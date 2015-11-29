@@ -72,7 +72,7 @@ module.exports = function(robot){
       }
       console.log('LOCATION: ' + JSON.stringify(location));
       
-      msg.send('time: ' + time '.meridian: ' + meridian);
+      msg.send('time: ' + time + '.meridian: ' + meridian);
     });
 
   robot.respond(/weather show (.*)/, function(msg){
