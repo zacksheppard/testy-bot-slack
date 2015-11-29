@@ -77,10 +77,8 @@ module.exports = function(robot){
   });
 
   robot.respond(/profile location add (.*)/i, function(msg){
-    // console.log(msg);
     var locationName = msg.match[1].match(/[a-zA-Z0-9_ ]+/);
     var locationZip = msg.match[1].match(/\d+/);
-// debugger
     var id = msg.message.user.id
     var user = robot.brain.userForId(id);
     if (!user.profile) {
@@ -97,10 +95,8 @@ module.exports = function(robot){
   robot.respond(/set timezone/i, function(msg){
     var userId = msg.message.user.id;
     var user = robot.brain.userForId(userId);
-    // var tz_label = setTimeZone(userId);
     if(!util.checkNestedProperties(user, 'profile', 'locations', 'home', 'tz')){
       setTimeZone(userId, function(){
-        var user = robot.brain.userForId(userId);
         msg.send('Your timezone has been set to ' + 
           user.profile.locations.home.tz_label);   
       });
