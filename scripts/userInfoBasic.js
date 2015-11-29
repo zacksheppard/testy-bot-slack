@@ -58,9 +58,6 @@ module.exports = function(robot){
     });
 
   };
-  
-  // var setTimeZone = function(userId){
-  // };
 
   robot.respond(/show the user object for @?([\w .\-]+)\?*$/i, function(res) {
     var name, user, users;
