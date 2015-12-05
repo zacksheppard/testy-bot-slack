@@ -21,7 +21,7 @@ var util = require('./utils.js');
 module.exports = function(robot){
 
   var scaffoldProfile = function(userId){
-  var user = robot.brain.userForId(userId);
+    var user = robot.brain.userForId(userId);
     user.profile = {
       locations: {
         home: {

@@ -47,33 +47,51 @@ module.exports = function(robot){
     return 'Currently it\'s ' + temp + ' in ' + city + '. ' + 'For ' + forecast_title + ', ' + forecast;
   };
 
-  var list_results = function(data, location){
-    var results = data.response.results;
-    var response = 'More than one result for ' + location + '. Prob better to *use zip code* until Zack programs me to choose one. Here\'s what I found, fwiw: \n';
-    for (var i = 0; i < results.length; i++) {
-      var result = '* ' + results[i].city + ', ' + results[i].state + ', ' + results[i].country + '\n'; 
-      response += result;
-    }
-    return response;
-  };
+  // var list_results = function(data, location){
+  //   var results = data.response.results;
+  //   var response = 'More than one result for ' + location + '. Prob better to *use zip code* until Zack programs me to choose one. Here\'s what I found, fwiw: \n';
+  //   for (var i = 0; i < results.length; i++) {
+  //     var result = '* ' + results[i].city + ', ' + results[i].state + ', ' + results[i].country + '\n'; 
+  //     response += result;
+  //   }
+  //   return response;
+  // };
 
-    robot.respond(/weather watch (.*)/i, function(msg){
-      console.log(msg.match);
-      var parsedMsg = /(.*) (at|@) (\d{1,2}:*\d{0,2})([ap]m)*/.exec(msg.match[1]);
-      // matches
-      // 11222 at 9pm
-      // Brooklyn, ny at 10am
-      // 11222 @ 10:00pm
-      var location = format_location(parsedMsg[1]);
-      var time = parsedMsg[3];
-      var meridian;
-      if(parsedMsg[4]){
-        meridian = parsedMsg[4];
+  var location_search = function(location, callback){
+    var results = [];
+    var location_url;
+    if(location.postalCode){
+      location_url = location.postalCode
+    } else if  (location.city && location.state){
+      location_url = location.state + '/' + location.city;
+    } else if (location.city && location.state){
+      location_url = location.state + '/' + location.city;
+    } else {
+      location_url = location.city;
+    }
+
+    var url = 
+      'http://api.wunderground.com/api/' +
+      process.env.HUBOT_WUNDERGROUND_API_KEY + 
+      '/geolookup/q/' + 
+      location_url + '.json';
+
+    // refactor this to use a promise or callback
+    robot.http(url).get()(function(err, res, body) {
+      var data = JSON.parse(body);
+      if (data.location != null) {
+        results.push(data.location);
+        console.log('SET RESULTS: ' + results);
+        results;
+      } else if (data.response.results != null){
+        results = data.response.results;
+      } else if (data.response.error) {
+        throw new Error(data.response.error);
       }
-      console.log('LOCATION: ' + JSON.stringify(location));
-      
-      msg.send('time: ' + time + '.meridian: ' + meridian);
+      callback(results);
     });
+
+  };
 
   robot.respond(/weather show (.*)/, function(msg){
     var location = msg.match[1];
@@ -88,37 +106,48 @@ module.exports = function(robot){
       if (data.location != null) {
         msg.send(current_forecast(data));
       } else if (data.response.results != null){
-        msg.send(list_results(data, location));
+        msg.send('More than one result for ' + location + 
+          '. Prob better to *use zip code* until Zack programs me to choose one.');
       } else if (data.response.error.type === 'querynotfound'){
-          msg.send(
-            'No cities matched that. If the city name isn\'t working, ' +
-            'try a postal code.'
-          );
+        msg.send(
+          'No cities matched that. If the city name isn\'t working, ' +
+          'try a postal code.'
+        );
       } else if (data.response.error) {
         msg.send('Weather Underground said to tell you, \n ```' + 
-            'error: \n' +
-            'type: '+ data.response.error.type + '\n' +
-            'description: '+ data.response.error.description + '\n' +
-            '```');
+          'error: \n' +
+          'type: '+ data.response.error.type + '\n' +
+          'description: '+ data.response.error.description + '\n' +
+          '```');
       }
     });
 
-    // robot.respond(/weather home (.*)/, function(msg){
-    //   var location = msg.match[1];
-    //   var id = msg.message.user.id;
-    //   var user = robot.brain.userForId(id);
-    //   // debugger
-
-    //   user.weather = {'locations': {'home': location }};
-
-    //   msg.send(
-    //     'Your home weather has been set to ' + user.weather + '.'
-    //     );
-
-    // });
-
-
-
-
   }); 
+
+  robot.respond(/weather watch (.*)/i, function(msg){
+    var parsedMsg = /(.*) (at|@) (\d{1,2}:*\d{0,2})([ap]m)*/.exec(msg.match[1]);
+    var time = parsedMsg[3];
+    var meridian;
+    if(parsedMsg[4]){
+      meridian = parsedMsg[4];
+    }
+    
+    // matches
+    // 11222 at 9pm
+    // Brooklyn, ny at 10am
+    // 11222 @ 10:00pm
+    var location_obj = format_location(parsedMsg[1]);
+    // console.log(location_obj);
+    location_search(location_obj, function(results){
+      console.log('LOCATION: ' + results[0].city);
+      console.log(results);
+      msg.send('So you\'d like me to let you know the weather in ' + 
+        results[0].city + ', ' + results[0].state + ' at ' + time + meridian + '?');
+      
+    });
+
+    //var watch = new cronJob('00 00 12 * * 1', itsNoonPacific, null, true, tz);
+    
+  });
+
 }
