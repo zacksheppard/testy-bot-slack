@@ -18,10 +18,7 @@ var tz = "America/New_York";
 module.exports = function(robot){
 
   var format_location = function(location){
-    // Matches: 
-    // 11222 at 9pm
-    // Brooklyn, ny at 10am
-    // 11222 @ 10:00pm
+    // Matches: 11222 at 9pm, Brooklyn, ny at 10am, 11222 @ 10:00pm
     var formattedLocation = {};
     var city, state, country, postalCode;
     var loc = location.split(',');
@@ -41,9 +38,22 @@ module.exports = function(robot){
   };
   
   var formatTime = function(time){
-    // parses these formats: , 9am, 10:50 pm, 1023pm, 10:23 am, 12pm, 2200
+    // parses these formats: 9am, 10:50 pm, 1023pm, 10:23 am, 12pm, 2200
     // parsedTime[1] is hour,[2] is minutes, [3] is am/pm
     var parsedTime = /^([0-9]{0,2}):*([0-9]{0,2})\s*(am|pm)*/.exec(time);
+
+    if (parsedTime[2] === ''){
+      parsedTime[2] = '00';
+    }
+
+    if (parsedTime[3] === 'pm') {
+      parsedTime[1] = parseInt(parsedTime[1]) + 12;
+    }
+
+    if (parsedTime[1] > 12) {
+      parsedTime[3] = 'pm';
+    }
+    console.log(parsedTime);
     return parsedTime;
   }
 
@@ -81,13 +91,10 @@ module.exports = function(robot){
       location_url = location.city;
     }
 
-    var url = 
-      'http://api.wunderground.com/api/' +
-      process.env.HUBOT_WUNDERGROUND_API_KEY + 
+    var url = 'http://api.wunderground.com/api/' + process.env.HUBOT_WUNDERGROUND_API_KEY + 
       '/geolookup/q/' + 
       location_url + '.json';
 
-    // refactor this to use a promise or callback
     robot.http(url).get()(function(err, res, body) {
       var data = JSON.parse(body);
       if (data.location != null) {
@@ -107,20 +114,20 @@ module.exports = function(robot){
   robot.respond(/weather watch (.*)/i, function(msg){
     var parsedMsg = /(.*) (at|@) (\d{1,2}:*\d{0,2}\s*[am|pm]*)/.exec(msg.match[1]);
     var time = formatTime(parsedMsg[3]);
-    console.log(time);
+  
     var location_obj = format_location(parsedMsg[1]);
     location_search(location_obj, function(results){
-      if(results.length > 0) {
-        var watch = new cronJob(
-          '00 00 12 * * 1', itsNoonPacific, null, true, tz
-        );
+      if(results.length === 1) {
+        // var watch = new cronJob(
+        //   '00 00 12 * * 1', itsNoonPacific, null, true, tz
+        // );
+        if (time[1] > 12) {
+          time[1] = parseInt(time[1]) - 12;
+        }
         msg.send('I\'ll let you know the weather in ' + results[0].city + ', ' +
-         results[0].state + ' at ' + time + meridian + '?');
+         results[0].state + ' at ' + time[1] + ':' + time[2] + time[3] + '.');
       }
-      
     });
-
-    
   });
 
   robot.respond(/weather show (.*)/, function(msg){
