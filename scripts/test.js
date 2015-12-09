@@ -38,4 +38,8 @@ module.exports = function(robot) {
     msg.send('Check the console.');
   });
 
+  robot.respond(/console.log brain/i, function(msg){
+    console.log(robot.brain)
+  });
+
 }

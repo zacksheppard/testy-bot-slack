@@ -126,10 +126,24 @@ module.exports = function(robot){
     });
   };
 
-  robot.respond(/weather show (.*)/, function(msg){
-    var location = msg.match[1];
-    current_forecast(msg.envelope.room, location);
-  }); 
+  var checkSchedule = function(){
+
+    var events = robot.brain.scheduledEvents;
+    var now    = new Date;
+    console.log(now.getUTCHours() + ":" + now.getUTCMinutes());
+    var minutes   = now.getUTCHours() * 60 + now.getUTCMinutes();
+    for(var i=0; events.length > i; i++){
+      var eventMinutes = parseInt(events[i].hour) * 60 + parseInt(events[i].minute);
+      console.log('MINUTES: ' + minutes);
+      console.log('EVENT MINUTES: ' + eventMinutes);
+      if(eventMinutes === minutes){
+        current_forecast(events[i].room, events[i].location);
+        console.log('YES!');
+      }
+    }
+  };
+
+  new cronJob('1 * * * * 0-7', checkSchedule, null, true)
 
   robot.respond(/weather watch (.*)/i, function(msg){
     var parsedMsg = /(.*) (at|@) (\d{1,2}:*\d{0,2}\s*[am|pm]*)/.exec(msg.match[1]);
@@ -138,9 +152,17 @@ module.exports = function(robot){
     var location_obj = format_location(parsedMsg[1]);
     location_search(location_obj, function(results){
       if(results.length === 1) {
-        // var watch = new cronJob(
-        //   '00 00 12 * * 1', itsNoonPacific, null, true, tz
-        // );
+        if(!robot.brain.scheduledEvents){
+          robot.brain.scheduledEvents = [];
+        }
+        robot.brain.scheduledEvents.push(
+          {
+            hour: time[1],
+            minute: time[2],
+            room: msg.envelope.room,
+            location: results[0].zip
+          }
+        );
         if (time[1] > 12) {
           time[1] = parseInt(time[1]) - 12;
         }
@@ -149,6 +171,12 @@ module.exports = function(robot){
       }
     });
   });
+
+  robot.respond(/weather show (.*)/, function(msg){
+    var location = msg.match[1];
+    current_forecast(msg.envelope.room, location);
+  }); 
+
 
   // var list_results = function(data, location){
   //   var results = data.response.results;
