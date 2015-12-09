@@ -37,6 +37,18 @@ module.exports = function(robot){
     };
   }; 
 
+  var getTimeZone = function(userId){
+    var user = robot.brain.userForId(userId);
+
+    if(user.profile.locations.home.tz_offset){
+      return user.profile.locations.home.tz_offset;
+    } else {
+      setTimeZone(userId, function(){
+        return user.profile.locations.home.tz_offset;
+      });
+    }
+  };
+
   var setTimeZone = function(userId, callback){
     var user = robot.brain.userForId(userId);
     var url = "https://slack.com/api/users.list?token=" + 
