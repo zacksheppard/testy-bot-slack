@@ -35,6 +35,9 @@ module.exports = function(robot){
         } 
       }
     };
+    setTimeZone(userId, function(){
+      console.log('User scaffolded and timezone set.');
+    });
   }; 
 
   var getTimeZone = function(userId){

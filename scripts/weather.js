@@ -13,9 +13,60 @@
 //   hubot weather watch 11222 - Watches the weather in the 11222 zip code
 
 var cronJob = require('cron').CronJob;
-var tz = "America/New_York";
+var utils = require('./utils');
 
 module.exports = function(robot){
+
+    var getTimeZone = function(userId){
+    var user = robot.brain.userForId(userId);
+
+    if(user.profile.locations.home.tz_offset){
+      return user.profile.locations.home.tz_offset;
+    } else {
+      setTimeZone(userId, function(){
+        return user.profile.locations.home.tz_offset;
+      });
+    }
+  };
+
+  var setTimeZone = function(userId, callback){
+    var user = robot.brain.userForId(userId);
+    var url = "https://slack.com/api/users.list?token=" + 
+    process.env.HUBOT_SLACK_TOKEN;
+
+    if(!user.profile){
+      scaffoldProfile(userId);
+    }
+    robot.http(url).get()(function(err, res, body) {
+      var data = JSON.parse(body);
+      for(var i=0; i < data.members.length; i++){
+        if (data.members[i].id === userId){
+          user.profile.locations.home.tz = data.members[i].tz;
+          user.profile.locations.home.tz_label = data.members[i].tz_label;
+          user.profile.locations.home.tz_offset = data.members[i].tz_offset;
+        }
+      }
+      callback();
+    });
+
+  };
+
+  var scaffoldProfile = function(userId){
+    var user = robot.brain.userForId(userId);
+    user.profile = {
+      locations: {
+        home: {
+          city: '',
+          state: '',
+          country_code: '',
+          postal_code: '',
+          tz: '',
+          tz_label: '',
+          tz_offset: ''
+        } 
+      }
+    };
+  };
 
   var format_location = function(location){
     // Matches: 11222, Brooklyn, ny , 11222
@@ -147,7 +198,38 @@ module.exports = function(robot){
 
   robot.respond(/weather watch (.*)/i, function(msg){
     var parsedMsg = /(.*) (at|@) (\d{1,2}:*\d{0,2}\s*[am|pm]*)/.exec(msg.match[1]);
+
+    var user = robot.brain.userForId(msg.message.user.id);
+
+    
     var time = formatTime(parsedMsg[3]);
+    var hour = time[1];
+    var minute = time[2];
+    var tzOffset = '';
+    if(!utils.checkNestedProperties(user, 'profile', 'locations', 'home', 
+      'tz_offset')) {
+      setTimeZone(msg.message.user.id, function(){
+        console.log(
+          'Time zone set to ' + 
+          user.profile.locations.home.tz + '//' +
+          user.profile.locations.home.tz_label + '//' +
+          user.profile.locations.home.tz_offset + '//' 
+        );
+      });
+    }
+    
+    tzOffset = user.profile.locations.home.tz_offset / 3600;
+    tzOffset = tzOffset * -1;
+    console.log('OFFSET IN HOURS: ' + 
+      tzOffset + ' = ' +
+      user.profile.locations.home.tz_offset + ' / ' + '3600'
+      );
+    var hourUTC = hour + tzOffset;
+    console.log('WE HAS CAN ADD ' +
+      hourUTC + ' = ' +
+      hour + ' + ' +
+      tzOffset
+      );
   
     var location_obj = format_location(parsedMsg[1]);
     location_search(location_obj, function(results){
@@ -157,7 +239,7 @@ module.exports = function(robot){
         }
         robot.brain.scheduledEvents.push(
           {
-            hour: time[1],
+            hour: hourUTC,
             minute: time[2],
             room: msg.envelope.room,
             location: results[0].zip
