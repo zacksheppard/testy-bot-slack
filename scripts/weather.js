@@ -104,7 +104,6 @@ module.exports = function(robot){
     if (parsedTime[1] > 12) {
       parsedTime[3] = 'pm';
     }
-    console.log(parsedTime);
     return parsedTime;
   };
 
@@ -129,7 +128,6 @@ module.exports = function(robot){
       var data = JSON.parse(body);
       if (data.location != null) {
         results.push(data.location);
-        console.log('SET RESULTS: ' + results);
         results;
       } else if (data.response.results != null){
         results = data.response.results;
@@ -181,15 +179,11 @@ module.exports = function(robot){
 
     var events = robot.brain.scheduledEvents;
     var now    = new Date;
-    console.log(now.getUTCHours() + ":" + now.getUTCMinutes());
     var minutes   = now.getUTCHours() * 60 + now.getUTCMinutes();
     for(var i=0; events.length > i; i++){
       var eventMinutes = parseInt(events[i].hour) * 60 + parseInt(events[i].minute);
-      console.log('MINUTES: ' + minutes);
-      console.log('EVENT MINUTES: ' + eventMinutes);
       if(eventMinutes === minutes){
         current_forecast(events[i].room, events[i].location);
-        console.log('YES!');
       }
     }
   };
@@ -209,27 +203,13 @@ module.exports = function(robot){
     if(!utils.checkNestedProperties(user, 'profile', 'locations', 'home', 
       'tz_offset')) {
       setTimeZone(msg.message.user.id, function(){
-        console.log(
-          'Time zone set to ' + 
-          user.profile.locations.home.tz + '//' +
-          user.profile.locations.home.tz_label + '//' +
-          user.profile.locations.home.tz_offset + '//' 
-        );
+        console.log('Time zone set.');
       });
     }
     
     tzOffset = user.profile.locations.home.tz_offset / 3600;
     tzOffset = tzOffset * -1;
-    console.log('OFFSET IN HOURS: ' + 
-      tzOffset + ' = ' +
-      user.profile.locations.home.tz_offset + ' / ' + '3600'
-      );
     var hourUTC = hour + tzOffset;
-    console.log('WE HAS CAN ADD ' +
-      hourUTC + ' = ' +
-      hour + ' + ' +
-      tzOffset
-      );
   
     var location_obj = format_location(parsedMsg[1]);
     location_search(location_obj, function(results){
