@@ -18,7 +18,7 @@ var util = require('./util');
 
 module.exports = function(robot){
 
-    var getTimeZone = function(userId){
+  var getTimeZone = function(userId){
     var user = robot.brain.userForId(userId);
 
     if(user.profile.locations.home.tz_offset){
@@ -67,45 +67,6 @@ module.exports = function(robot){
         } 
       }
     };
-  };
-
-  var formatLocation = function(location){
-    // Matches: 11222, Brooklyn, ny , 11222
-    var formattedLocation = {};
-    var city, state, country, postalCode;
-    var loc = location.split(',');
-    if( loc.length === 3){
-      formattedLocation.city = loc[0];
-      formattedLocation.state = loc[1];
-      formattedLocation.country = loc[2];
-    } else if (loc.length === 2){
-      formattedLocation.city = loc[0];
-      formattedLocation.state = loc[1];
-    } else if (!isNaN(loc)){
-      formattedLocation.postalCode = loc[0];
-    } else {
-      formattedLocation.city = loc[0];
-    }
-    return formattedLocation;
-  };
-  
-  var formatTime = function(time){
-    // parses these formats: 9am, 10:50 pm, 1023pm, 10:23 am, 12pm, 2200
-    // parsedTime[1] is hour,[2] is minutes, [3] is am/pm
-    var parsedTime = /^([0-9]{0,2}):*([0-9]{0,2})\s*(am|pm)*/.exec(time);
-
-    if (parsedTime[2] === ''){
-      parsedTime[2] = '00';
-    }
-
-    if (parsedTime[3] === 'pm') {
-      parsedTime[1] = parseInt(parsedTime[1]) + 12;
-    }
-
-    if (parsedTime[1] > 12) {
-      parsedTime[3] = 'pm';
-    }
-    return parsedTime;
   };
 
   var locationSearch = function(location, callback){
@@ -178,11 +139,15 @@ module.exports = function(robot){
 
   var checkSchedule = function(){
 
+    if(!robot.brain.scheduledEvents) {
+      robot.brain.scheduledEvents = [];
+    }
     var events = robot.brain.scheduledEvents;
-    var now    = new Date;
+    var now = new Date;
     var minutes   = now.getUTCHours() * 60 + now.getUTCMinutes();
     for(var i=0; events.length > i; i++){
       var eventMinutes = parseInt(events[i].hour) * 60 + parseInt(events[i].minute);
+      console.log('eventMinutes: ' + eventMinutes + '. minutes: ' + minutes);
       if(eventMinutes === minutes){
         currentForecast(events[i].room, events[i].location);
       }
@@ -196,22 +161,23 @@ module.exports = function(robot){
 
     var user = robot.brain.userForId(msg.message.user.id);
 
-    var time = formatTime(parsedMsg[3]);
-    var hour = time[1];
-    var minute = time[2];
+    var time = util.formatTime(parsedMsg[3]);
+    var hour = parseInt(time[1]);
+    var minute = parseInt(time[2]);
     var tzOffset = '';
     if(!util.checkNestedProperties(user, 'profile', 'locations', 'home', 
       'tz_offset')) {
       setTimeZone(msg.message.user.id, function(){
-        console.log('Time zone set.');
+        console.log('Time zone offset ' + user.profile.locations.home.tz_offset);
       });
     }
     
     tzOffset = user.profile.locations.home.tz_offset / 3600;
     tzOffset = tzOffset * -1;
     var hourUTC = hour + tzOffset;
+    console.log('tzOffset: ' + tzOffset + '. hourUTC: ' + hourUTC);
   
-    var locationObj = formatLocation(parsedMsg[1]);
+    var locationObj = util.formatLocation(parsedMsg[1]);
     locationSearch(locationObj, function(results){
       if(results.length === 1) {
         if(!robot.brain.scheduledEvents){
@@ -220,7 +186,7 @@ module.exports = function(robot){
         robot.brain.scheduledEvents.push(
           {
             hour: hourUTC,
-            minute: time[2],
+            minute: minute,
             room: msg.envelope.room,
             location: results[0].zip
           }
