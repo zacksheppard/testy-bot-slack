@@ -14,9 +14,16 @@ module.exports = {
       obj = obj[args[i]];
     }
     return true;
-  },
-  hello: function (){
-    return 'Hello there.';
   }
+
+  // list_results: function(data, location){
+  //   var results = data.response.results;
+  //   var response = 'More than one result for ' + location + '. Prob better to *use zip code* until Zack programs me to choose one. Here\'s what I found, fwiw: \n';
+  //   for (var i = 0; i < results.length; i++) {
+  //     var result = '* ' + results[i].city + ', ' + results[i].state + ', ' + results[i].country + '\n'; 
+  //     response += result;
+  //   }
+  //   return response;
+  // }
 
 };

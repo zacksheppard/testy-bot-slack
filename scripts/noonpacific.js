@@ -11,7 +11,7 @@ var tz = "America/Los_Angeles";
 
 module.exports = function(robot) {
 
-  var its_noon_messages = [
+  var itsNoonMessages = [
     "It's Noon Pacific!",
     "Time for some new music! http://noonpacific.com",
     "Boom! http://noonpacific.com",
@@ -19,7 +19,7 @@ module.exports = function(robot) {
   ];
 
   var itsNoonPacific = function() {
-    var rand_message = its_noon_messages[Math.floor(Math.random() * its_noon_messages.length)];
+    var rand_message = itsNoonMessages[Math.floor(Math.random() * itsNoonMessages.length)];
     robot.messageRoom('general', rand_message);
   }
   new cronJob('00 00 12 * * 1', itsNoonPacific, null, true, tz);

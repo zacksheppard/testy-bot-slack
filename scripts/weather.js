@@ -13,6 +13,7 @@
 //   hubot weather watch 11222 - Watches the weather in the 11222 zip code
 
 var cronJob = require('cron').CronJob;
+var moment = require('moment');
 var util = require('./util');
 
 module.exports = function(robot){
@@ -68,7 +69,7 @@ module.exports = function(robot){
     };
   };
 
-  var format_location = function(location){
+  var formatLocation = function(location){
     // Matches: 11222, Brooklyn, ny , 11222
     var formattedLocation = {};
     var city, state, country, postalCode;
@@ -107,7 +108,7 @@ module.exports = function(robot){
     return parsedTime;
   };
 
-  var location_search = function(location, callback){
+  var locationSearch = function(location, callback){
     var results = [];
     var location_url;
     if(location.postalCode){
@@ -138,7 +139,7 @@ module.exports = function(robot){
     });
   };
 
-  var current_forecast = function(room, location){
+  var currentForecast = function(room, location){
     var message = '';
     var url = 
       'http://api.wunderground.com/api/' +
@@ -183,7 +184,7 @@ module.exports = function(robot){
     for(var i=0; events.length > i; i++){
       var eventMinutes = parseInt(events[i].hour) * 60 + parseInt(events[i].minute);
       if(eventMinutes === minutes){
-        current_forecast(events[i].room, events[i].location);
+        currentForecast(events[i].room, events[i].location);
       }
     }
   };
@@ -210,8 +211,8 @@ module.exports = function(robot){
     tzOffset = tzOffset * -1;
     var hourUTC = hour + tzOffset;
   
-    var location_obj = format_location(parsedMsg[1]);
-    location_search(location_obj, function(results){
+    var locationObj = formatLocation(parsedMsg[1]);
+    locationSearch(locationObj, function(results){
       if(results.length === 1) {
         if(!robot.brain.scheduledEvents){
           robot.brain.scheduledEvents = [];
@@ -235,18 +236,7 @@ module.exports = function(robot){
 
   robot.respond(/weather show (.*)/, function(msg){
     var location = msg.match[1];
-    current_forecast(msg.envelope.room, location);
+    currentForecast(msg.envelope.room, location);
   }); 
-
-
-  // var list_results = function(data, location){
-  //   var results = data.response.results;
-  //   var response = 'More than one result for ' + location + '. Prob better to *use zip code* until Zack programs me to choose one. Here\'s what I found, fwiw: \n';
-  //   for (var i = 0; i < results.length; i++) {
-  //     var result = '* ' + results[i].city + ', ' + results[i].state + ', ' + results[i].country + '\n'; 
-  //     response += result;
-  //   }
-  //   return response;
-  // };
 
 }
