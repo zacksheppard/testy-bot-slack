@@ -16,7 +16,7 @@
 //   hubot profile location add home 11222 - add home location
 //   hubot profile location add <custom name>: 11222 - add custom location
 
-var util = require('./utils.js');
+var util = require('./util.js');
 
 module.exports = function(robot){
 

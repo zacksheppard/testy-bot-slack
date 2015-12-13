@@ -13,7 +13,7 @@
 //   hubot weather watch 11222 - Watches the weather in the 11222 zip code
 
 var cronJob = require('cron').CronJob;
-var utils = require('./utils');
+var util = require('./util');
 
 module.exports = function(robot){
 
@@ -195,12 +195,11 @@ module.exports = function(robot){
 
     var user = robot.brain.userForId(msg.message.user.id);
 
-    
     var time = formatTime(parsedMsg[3]);
     var hour = time[1];
     var minute = time[2];
     var tzOffset = '';
-    if(!utils.checkNestedProperties(user, 'profile', 'locations', 'home', 
+    if(!util.checkNestedProperties(user, 'profile', 'locations', 'home', 
       'tz_offset')) {
       setTimeZone(msg.message.user.id, function(){
         console.log('Time zone set.');
