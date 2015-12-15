@@ -18,15 +18,17 @@ var util = require('./util');
 
 module.exports = function(robot){
 
-  var getTimeZone = function(userId){
+  var getTimeZone = function(userId, callback){
     var user = robot.brain.userForId(userId);
 
-    if(user.profile.locations.home.tz_offset){
-      return user.profile.locations.home.tz_offset;
-    } else {
+    if(!util.checkNestedProperties(user, 'profile', 'locations', 'home', 
+      'tz_offset')){
       setTimeZone(userId, function(){
-        return user.profile.locations.home.tz_offset;
+        console.log('Timezone set.');
+        callback();
       });
+    } else {
+      callback();
     }
   };
 
@@ -164,39 +166,34 @@ module.exports = function(robot){
     var time = util.formatTime(parsedMsg[3]);
     var hour = parseInt(time[1]);
     var minute = parseInt(time[2]);
-    var tzOffset = '';
-    if(!util.checkNestedProperties(user, 'profile', 'locations', 'home', 
-      'tz_offset')) {
-      setTimeZone(msg.message.user.id, function(){
-        console.log('Time zone offset ' + user.profile.locations.home.tz_offset);
-      });
-    }
+    var tzOffset = getTimeZone(user.id, function(){
+
+      tzOffset = user.profile.locations.home.tz_offset / 3600;
+      tzOffset = tzOffset * -1;
+      var hourUTC = hour + tzOffset;
+      console.log('tzOffset: ' + tzOffset + '. hourUTC: ' + hourUTC);
     
-    tzOffset = user.profile.locations.home.tz_offset / 3600;
-    tzOffset = tzOffset * -1;
-    var hourUTC = hour + tzOffset;
-    console.log('tzOffset: ' + tzOffset + '. hourUTC: ' + hourUTC);
-  
-    var locationObj = util.formatLocation(parsedMsg[1]);
-    locationSearch(locationObj, function(results){
-      if(results.length === 1) {
-        if(!robot.brain.scheduledEvents){
-          robot.brain.scheduledEvents = [];
-        }
-        robot.brain.scheduledEvents.push(
-          {
-            hour: hourUTC,
-            minute: minute,
-            room: msg.envelope.room,
-            location: results[0].zip
+      var locationObj = util.formatLocation(parsedMsg[1]);
+      locationSearch(locationObj, function(results){
+        if(results.length === 1) {
+          if(!robot.brain.scheduledEvents){
+            robot.brain.scheduledEvents = [];
           }
-        );
-        if (time[1] > 12) {
-          time[1] = parseInt(time[1]) - 12;
+          robot.brain.scheduledEvents.push(
+            {
+              hour: hourUTC,
+              minute: minute,
+              room: msg.envelope.room,
+              location: results[0].zip
+            }
+          );
+          if (time[1] > 12) {
+            time[1] = parseInt(time[1]) - 12;
+          }
+          msg.send('I\'ll let you know the weather in ' + results[0].city + ', ' +
+           results[0].state + ' at ' + time[1] + ':' + time[2] + time[3] + '.');
         }
-        msg.send('I\'ll let you know the weather in ' + results[0].city + ', ' +
-         results[0].state + ' at ' + time[1] + ':' + time[2] + time[3] + '.');
-      }
+      });
     });
   });
 

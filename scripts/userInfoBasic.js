@@ -2,7 +2,6 @@
 //   Save basic user info which might be useful to other scripts
 //   
 //
-
 //   
 // Dependencies: 
 //  
