@@ -53,7 +53,8 @@ module.exports = function(robot) {
   });
 
   robot.respond(/console.log brain/i, function(msg){
-    console.log(robot.brain)
+    console.log(robot.brain);
+    msg.send('Check the console.');
   });
 
 }
