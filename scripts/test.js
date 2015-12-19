@@ -47,14 +47,4 @@ module.exports = function(robot) {
     msg.send("You're a fart face!");
   });
 
-  robot.respond(/view message object/i, function(msg){
-    console.log(msg);
-    msg.send('Check the console.');
-  });
-
-  robot.respond(/console.log brain/i, function(msg){
-    console.log(robot.brain);
-    msg.send('Check the console.');
-  });
-
 }

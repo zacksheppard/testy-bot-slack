@@ -10,7 +10,7 @@
 //   
 //   hubot profile location add a location
 
-// Commands CRUD Style:
+// Commands:
 //   
 //   hubot profile location add home 11222 - add home location
 //   hubot profile location add <custom name>: 11222 - add custom location
